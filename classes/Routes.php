@@ -39,7 +39,7 @@ class Routes
     {
       self::$validRoutes[] = $routes;
       self::$count++;
-      // to get the url parameter us as to know the specific routes
+      // to get the url parameter as to know the specific routes
       self::$url = explode("/",$_SERVER['REQUEST_URI'],3);
     if (self::$url[2] == $routes) {
       //print_r($_SERVER['REQUEST_URI']);
@@ -51,6 +51,7 @@ class Routes
 
     public static function get($routes, $function)
     {
+      // confirming if the 
       if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         self::set($routes, $function)
       }else {

@@ -1,6 +1,7 @@
 <?php
 class Controller extends Database
 {
+  public static $data_2_send;
 
   public static function CreateView($viewName){
     //self::view('./views/'.$viewName.'.php');
@@ -10,29 +11,39 @@ class Controller extends Database
 
 
 
-    public static function view($page, $variables = [])
-      {
-        $page0 = './views/';
-        $page2 = '.php';
+  public static function view($page, $variables = []){
 
+      $pagePath = './views/';
+      $pageExtension = '.php';
 
-          if(count($variables))
-          {
-            foreach ($variables as $key => $value) {
-              $$key= json_decode(json_encode($variables[$key]));
-             }
+      if (!empty(self::$data_2_send)) {
+
+        foreach (self::$data_2_send as $key => $value) {
+          $$key= $value;
           }
-          require_once $page0.$page.$page2;
-      }
 
+        }
 
-      public static function with($variables = [])
+        //check to know the array got values
+      if(count($variables))
         {
-            if(count($variables))
-            {
-              $variables= json_decode(json_encode($variables));;
-              //var_dump($variables->myData);
+          // Extract variables into the local scope
+          foreach ($variables as $key => $value) {
+            $$key= $value;
             }
         }
+        // Load the specified page
+        require_once $pagePath . $page . $pageExtension;
+    }
+
+
+  public static function with($variables = []){
+
+      if(count($variables))
+      {
+        self::$data_2_send = $variables;
+        return self::$data_2_send;
+      }
+    }
 }
  ?>

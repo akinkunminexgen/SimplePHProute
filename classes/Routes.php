@@ -35,35 +35,56 @@ class Routes
       }
     }
 
-  public static function set($routes, $function)
-  {
-    self::$validRoutes[] = $routes;
-    self::$count++;
-    // to get the url parameter us as to know the specific routes
-    self::$url = explode("/",$_SERVER['REQUEST_URI'],3);
-   if (self::$url[2] == $routes) {
-     //print_r($_SERVER['REQUEST_URI']);
-      $function->__invoke(); // to run all Routes
-      exit();
-    }
-  }
-
-
-  public static function populate()
-  {
-    $counter = self::$count;
-    if ($counter = self::$count) {
-      $newRoute = false;
-        if (in_array(self::$url[2], self::$validRoutes)) { //frontpages==a55
-          $newRoute = true;
-        }
-        //to redirect to a 404 page in the view
-      if (!$newRoute) {
-        $controller = new Controller;
-        $controller->view('404');
+    private static function set($routes, $function)
+    {
+      self::$validRoutes[] = $routes;
+      self::$count++;
+      // to get the url parameter us as to know the specific routes
+      self::$url = explode("/",$_SERVER['REQUEST_URI'],3);
+    if (self::$url[2] == $routes) {
+      //print_r($_SERVER['REQUEST_URI']);
+        $function->__invoke(); // to run all Routes
+        exit();
       }
     }
-  }
+
+
+    public static function get($routes, $function)
+    {
+      if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+        self::set($routes, $function)
+      }else {
+        $controller = new Controller;
+          $controller->with(["error" => "Permission denied!"])->view('404');
+      }
+    }
+
+    public static function post($routes, $function)
+    {
+      if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        self::set($routes, $function)
+      }else {
+        $controller = new Controller;
+          $controller->with(["error" => "Permission denied!"])->view('404');
+      }
+    }
+
+
+    public static function populate()
+    {
+      $counter = self::$count;
+      if ($counter = self::$count) {
+        $newRoute = false;
+          if (in_array(self::$url[2], self::$validRoutes)) { //frontpages==a55
+            $newRoute = true;
+          }
+          //to redirect to a 404 page in the view
+        if (!$newRoute) {
+          $controller = new Controller;
+          $controller->view('404');
+        }
+      }
+    }
 
 
 }

@@ -55,7 +55,7 @@ class Routes
         self::set($routes, $function)
       }else {
         $controller = new Controller;
-          $controller->with(["error" => "Permission denied!"])->view('404');
+          $controller->with(["error" => "Permission denied! A get is required"])->view('404');
       }
     }
 
@@ -65,7 +65,7 @@ class Routes
         self::set($routes, $function)
       }else {
         $controller = new Controller;
-          $controller->with(["error" => "Permission denied!"])->view('404');
+          $controller->with(["error" => "Permission denied! A post is required"])->view('404');
       }
     }
 

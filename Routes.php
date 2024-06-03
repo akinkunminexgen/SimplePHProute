@@ -11,10 +11,10 @@ Routes::get('', function() {
   Index::CreateView('Index');
 });
 
-Routes::group(['namespace'=> 'backpages'], function() {
+Routes::group(['prefix' => 'backpages'], function() {
 
-    Routes::get('history', function() {
-      BHistory::CreateView('backpages/history');
+    Routes::get('history', function($go) {
+      BHistory::CreateView($go);
       //AboutUs::test();
     });
 

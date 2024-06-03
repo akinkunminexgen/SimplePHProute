@@ -12,27 +12,24 @@ class Routes
   //to group routes in different folder and also to make use of middleware
     public static function group($variables = [], $function)
     {
-      if (count($variables)) {
-        foreach ($variables as $key => $value) {
-          switch ($key) {
-            case 'prefix':
-              self::$routing = $value."/";
-              break;
-            case 'middleware':
-              //check for a particular middleware
-              require_once __DIR__.'src/middleware/'.$value.'.php';
-              if(isset($variable['prefix'])){
-                self::$routing = $variables['prefix'].'/';
-              }
-                  break;
-  
-            default:
-              // code...
-              break;
-          }
-        }
-        $function->__invoke();
+      self::$routing = "";        
+
+      if(isset($variables['prefix'])){
+        self::$routing = $variables['prefix']."/";
       }
+
+      if(isset($variables['middleware'])){
+        $middlewareFile = __DIR__.'/src/middleware/'.$variables['middleware'].'.php';
+
+        if (file_exists($middlewareFile)) {
+              require_once $middlewareFile;
+            } else {
+                throw new RuntimeException("Middleware file not found: $middlewareFile");
+            }
+      }
+
+      $function->__invoke();
+      exit();
     }
 
     private static function set($routes, $function)
@@ -44,10 +41,11 @@ class Routes
       self::$url = explode("/",$_SERVER['REQUEST_URI'],3);
       if (self::$url[2] == self::$routing) {
         //print_r($_SERVER['REQUEST_URI']);
-          $function->__invoke(); // to run all Routes
+          $function->__invoke(self::$routing); // to run all Routes
           exit();
         }else {
-          self::$routing = "";
+          self::$routing = str_replace($routes,"",self::$routing);
+          //self::$routing = "";
         }
     }
 

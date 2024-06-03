@@ -4,9 +4,9 @@
  */
 class Routes
 {
-    public static $validRoutes = array();
+    public static $validRoutes, $url = array();
     public static $count = 0;
-    public static $url = array();
+    public static $routing = "";
 
 
   //to group routes in different folder and also to make use of middleware
@@ -16,15 +16,14 @@ class Routes
         foreach ($variables as $key => $value) {
           switch ($key) {
             case 'prefix':
-              echo $value;
+              self::$routing = $value."/";
               break;
-
-              case 'namespace':
-                // code...
-                break;
-
-                case 'middleware':
-                  // code...
+            case 'middleware':
+              //check for a particular middleware
+              require_once __DIR__.'src/middleware/'.$value.'.php';
+              if(isset($variable['prefix'])){
+                self::$routing = $variables['prefix'].'/';
+              }
                   break;
   
             default:
@@ -32,20 +31,24 @@ class Routes
               break;
           }
         }
+        $function->__invoke();
       }
     }
 
     private static function set($routes, $function)
     {
-      self::$validRoutes[] = $routes;
+      self::$routing .= $routes
+      self::$validRoutes[] = $self::$routing;
       self::$count++;
       // to get the url parameter as to know the specific routes
       self::$url = explode("/",$_SERVER['REQUEST_URI'],3);
-    if (self::$url[2] == $routes) {
-      //print_r($_SERVER['REQUEST_URI']);
-        $function->__invoke(); // to run all Routes
-        exit();
-      }
+      if (self::$url[2] == self::$routes) {
+        //print_r($_SERVER['REQUEST_URI']);
+          $function->__invoke(); // to run all Routes
+          exit();
+        }else {
+          self::$routing = "";
+        }
     }
 
 

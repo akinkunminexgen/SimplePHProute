@@ -11,10 +11,13 @@ Routes::get('', function() {
   Index::CreateView('Index');
 });
 
-//Routes::group(['namespace'=> 'backpages'],
-Routes::get('backpages/history', function() {
-  BHistory::CreateView('backpages/history');
-  //AboutUs::test();
+Routes::group(['namespace'=> 'backpages'], function() {
+
+    Routes::get('history', function() {
+      BHistory::CreateView('backpages/history');
+      //AboutUs::test();
+    });
+
 });
 
 //);

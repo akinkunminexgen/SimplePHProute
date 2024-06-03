@@ -37,12 +37,12 @@ class Routes
 
     private static function set($routes, $function)
     {
-      self::$routing .= $routes
-      self::$validRoutes[] = $self::$routing;
+      self::$routing .= $routes;
+      self::$validRoutes[] = self::$routing;
       self::$count++;
       // to get the url parameter as to know the specific routes
       self::$url = explode("/",$_SERVER['REQUEST_URI'],3);
-      if (self::$url[2] == self::$routes) {
+      if (self::$url[2] == self::$routing) {
         //print_r($_SERVER['REQUEST_URI']);
           $function->__invoke(); // to run all Routes
           exit();
@@ -56,7 +56,7 @@ class Routes
     {
       // confirming if the 
       if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-        self::set($routes, $function)
+        self::set($routes, $function);
       }else {
         $controller = new Controller;
           $controller->with(["error" => "Permission denied! A get is required"])->view('404');
@@ -66,7 +66,7 @@ class Routes
     public static function post($routes, $function)
     {
       if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        self::set($routes, $function)
+        self::set($routes, $function);
       }else {
         $controller = new Controller;
           $controller->with(["error" => "Permission denied! A post is required"])->view('404');

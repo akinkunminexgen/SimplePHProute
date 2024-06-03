@@ -9,8 +9,8 @@ class AuthMiddleware {
             //return $next($request);
         } else {
             // User is not authenticated, redirect to login page or return unauthorized response
-            $controller = new Controller
-            $controller->view('index')
+            $controller = new Controller;
+            $controller->view('index');
             //header("Location: /login.php");
             exit;
         }

@@ -11,10 +11,9 @@ class Model extends Database
     $this->TBname = $name;
   }
 
-  public function all(){
-    $sqlquery = sprintf("SELECT * FROM %s.",$this->TBname);
-    return self::query($sqlquery);
-    
+  public function all()
+  {
+    return self::query("SELECT * FROM $this->TBname");
   }
 }
 

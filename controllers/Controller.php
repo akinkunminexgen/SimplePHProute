@@ -42,7 +42,8 @@ class Controller extends Database
       if(count($variables))
       {
         self::$data_2_send = $variables;
-        return self::$data_2_send;
+        // Return an instance of the class to allow method chaining
+        return new static();
       }
     }
 }

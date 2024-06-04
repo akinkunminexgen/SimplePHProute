@@ -10,7 +10,7 @@ class AboutUs extends \Controller
     
     $student = new Student();
 
-    $result = $student->all();
+    $result = $student->where(['firstanme', 'ajayi']);
     //$result = ['ade'=>'i hate you', 'bose'=>'i will lovw you forever', 'jide' => ['bola' => 'the love i have']];
     self::with(['myData'=> 'thedataenemy of le'])->view($viewName, ['resulter' => $result]);
   }

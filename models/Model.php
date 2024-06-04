@@ -2,12 +2,19 @@
 /**
  *
  */
-class Model
+class Model extends Database
 {
+  private $TBname;
 
-  function __construct(argument)
+  public function __construct($name = "name of table")
   {
-    // code...
+    $this->TBname = $name;
+  }
+
+  public function all(){
+    $sqlquery = sprintf("SELECT * FROM %s.",$this->TBname);
+    return self::query($sqlquery);
+    
   }
 }
 

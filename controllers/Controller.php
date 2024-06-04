@@ -1,5 +1,5 @@
 <?php
-class Controller extends Database
+class Controller
 {
   public static $data_2_send;
 

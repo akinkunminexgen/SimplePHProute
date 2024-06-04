@@ -17,12 +17,17 @@ Routes::group(['prefix' => 'backpages'], function() {
       BHistory::CreateView($go);
     });
 
+
 });
 
 Routes::group(['prefix' => 'frontpages'], function() {
 
   Routes::get('history', function($go) {
     FHistory::CreateView($go);
+  });
+
+  Routes::get('about-us', function() {
+    AboutUs::CreateView('AboutUs');
   });
 
 });

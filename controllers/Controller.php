@@ -19,7 +19,7 @@ class Controller extends Database
       if (!empty(self::$data_2_send)) {
 
         foreach (self::$data_2_send as $key => $value) {
-          $$key= json_encode($value);
+          $$key= json_decode(json_encode($value));
           }
 
         }
@@ -29,7 +29,7 @@ class Controller extends Database
         {
           // Extract variables into the local scope
           foreach ($variables as $key => $value) {
-            $$key= json_encode($value);
+            $$key= json_decode(json_encode($value));
             }
         }
         // Load the specified page

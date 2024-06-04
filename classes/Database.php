@@ -1,7 +1,7 @@
 <?php
 class Database
 {
-  
+
   // Now you can use $dbHost, $dbUser, $dbPassword in your application
 
 
@@ -13,7 +13,9 @@ class Database
   public static function get_database_info(){
 
     // Load .env file into $_ENV
-    $envFile = __DIR__ . '/.env';
+    $envFile = __DIR__;
+    $parentDirectory = dirname($envFile);
+    $envFile = $parentDirectory.'\.env';
     if (file_exists($envFile)) {
         $lines = file($envFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
         foreach ($lines as $line) {
@@ -28,16 +30,15 @@ class Database
         }
     }
 
-    
+
     self::$host = getenv('DB_HOST');
     self::$dbName = getenv('DB_DATABASE');
     self::$userName = getenv('DB_USERNAME');
     self::$password = getenv('DB_PASSWORD');
-    return self
   }
 
   private static function connect() {
-    self::get_database_info()
+    self::get_database_info();
     $pdo = new PDO('mysql:host='.self::$host.';dbname='.self::$dbName.';charset=utf8', self::$userName, self::$password);
     $pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);

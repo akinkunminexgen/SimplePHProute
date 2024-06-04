@@ -12,7 +12,7 @@ class Routes
   //to group routes in different folder and also to make use of middleware
     public static function group($variables = [], $function)
     {
-      self::$routing = "";        
+      self::$routing = "";
 
       if(isset($variables['prefix'])){
         self::$routing = $variables['prefix']."/";
@@ -29,11 +29,15 @@ class Routes
       }
 
       $function->__invoke();
-      exit();
     }
 
     private static function set($routes, $function)
     {
+      //ensuring all group routes are verified to accomodate other routes
+      $groupurl = explode("/",$_SERVER['REQUEST_URI']);
+      if ($groupurl[2].'/' != self::$routing) {
+        self::$routing = "";
+      }
       self::$routing .= $routes;
       self::$validRoutes[] = self::$routing;
       self::$count++;
@@ -52,7 +56,7 @@ class Routes
 
     public static function get($routes, $function)
     {
-      // confirming if the 
+      // confirming if the
       if ($_SERVER['REQUEST_METHOD'] === 'GET') {
         self::set($routes, $function);
       }else {

@@ -5,7 +5,7 @@
 class Student extends Model
 {
 
-  public function __construct($name = "student")
+  public function __construct($name = "students")
   {
     parent::__construct($name);
   }

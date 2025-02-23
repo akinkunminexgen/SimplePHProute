@@ -10,7 +10,7 @@ class Routes
 
 
   //to group routes in different folder and also to make use of middleware
-    public static function group($variables = [], $function)
+    public static function group($variables, $function)
     {
       self::$routing = "";
 
@@ -35,15 +35,15 @@ class Routes
     {
       //ensuring all group routes are verified to accomodate other routes
       $groupurl = explode("/",$_SERVER['REQUEST_URI']);
-      if ($groupurl[2].'/' != self::$routing) {
+      if ($groupurl[1].'/' != self::$routing) {
         self::$routing = "";
       }
       self::$routing .= $routes;
       self::$validRoutes[] = self::$routing;
       self::$count++;
       // to get the url parameter as to know the specific routes
-      self::$url = explode("/",$_SERVER['REQUEST_URI'],3);
-      if (self::$url[2] == self::$routing) {
+      self::$url = explode("/",$_SERVER['REQUEST_URI'],2);
+      if (self::$url[1] == self::$routing) {
         //print_r($_SERVER['REQUEST_URI']);
           $function->__invoke(self::$routing); // to run all Routes
           exit();

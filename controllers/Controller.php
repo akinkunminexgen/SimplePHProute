@@ -1,7 +1,7 @@
 <?php
 class Controller
 {
-  public static $data_2_send;
+  public static $dataToSend;
 
   public static function CreateView($viewName){
     //self::view('./views/'.$viewName.'.php');
@@ -16,9 +16,9 @@ class Controller
       $pagePath = './views/';
       $pageExtension = '.php';
 
-      if (!empty(self::$data_2_send)) {
+      if (!empty(self::$dataToSend)) {
 
-        foreach (self::$data_2_send as $key => $value) {
+        foreach (self::$dataToSend as $key => $value) {
           $$key= json_decode(json_encode($value));
           }
 
@@ -41,7 +41,7 @@ class Controller
 
       if(count($variables))
       {
-        self::$data_2_send = $variables;
+        self::$dataToSend = $variables;
         // Return an instance of the class to allow method chaining
         return new static();
       }

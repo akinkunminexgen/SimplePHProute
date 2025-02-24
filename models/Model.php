@@ -5,7 +5,7 @@
 */
 class Model extends Database
 {
-    protected $tableName;
+    private $tableName;
 
     public function __construct($name)
     {
@@ -17,13 +17,13 @@ class Model extends Database
 
     public function all()
     {
-        return self::query("SELECT * FROM {$this->tableName}");
+        return self::query("Select", "SELECT * FROM {$this->tableName}");
     }
 
     public function find(int $id)
     {
         $query = "SELECT * FROM {$this->tableName} WHERE id = :id";
-        $result = self::query($query, ['id' => $id]);
+        $result = self::query("Select", $query, ['id' => $id]);
         return $result ? $result[0] : null;
     }
 
@@ -34,17 +34,20 @@ class Model extends Database
         }
         [$column, $value] = $condition;
         $query = "SELECT * FROM {$this->tableName} WHERE $column = :value";
-        return self::query($query, ['value' => $value]);
+        return self::query("Select", $query, ['value' => $value]);
     }
 
     // Insert a new record
-    public function insert(array $data)
+    public function insert(Object $dataObj)
     {
+        $data = get_object_vars($dataObj);
+        unset($data['tableName']); // to always ensure removal of table name from the properties
         $columns = implode(',', array_keys($data));
         $placeholders = ':' . implode(', :', array_keys($data));
-        $query = "INSERT INTO {$this->tableName} ($columns) VALUES ($placeholders)";
-        self::query($query, $data);
-        return self::connect()->lastInsertId();
+        var_dump($columns);
+        var_dump($placeholders);
+        $query = "INSERT INTO {$this->tableName} ($columns) VALUES ($placeholders)";        
+        return self::query("Insert", $query, $data);
     }
 
     // Update a record by ID
@@ -57,14 +60,14 @@ class Model extends Database
         $fields = rtrim($fields, ', ');
         $data['id'] = $id;
         $query = "UPDATE {$this->tableName} SET $fields WHERE id = :id";
-        return self::query($query, $data);
+        return self::query("Update", $query, $data);
     }
 
     // Delete a record by ID
     public function delete(int $id)
     {
         $query = "DELETE FROM {$this->tableName} WHERE id = :id";
-        return self::query($query, ['id' => $id]);
+        return self::query("Delete", $this->$queryType, $query, ['id' => $id]);
     }
 }
 ?>

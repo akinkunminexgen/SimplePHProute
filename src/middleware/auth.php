@@ -10,7 +10,7 @@ class AuthMiddleware {
         } else {
             // User is not authenticated, redirect to login page or return unauthorized response
             $controller = new Controller;
-            $controller->view('index');
+            //$controller->view('index');
             //header("Location: /login.php");
             exit;
         }

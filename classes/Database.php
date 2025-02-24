@@ -39,7 +39,7 @@ class Database
     self::$databaseType = getenv('DB_TYPE');
   }
 
-  private static function connect() {
+  protected static function connect() {
         if (!self::$pdo) {
             self::get_database_info();
 
@@ -70,13 +70,17 @@ class Database
     }
   
 
-  public static function query($query, $params = array())
+  public static function query($queryType, $query, $params = array())
   {
       try {
             $stmt = self::connect()->prepare($query);
             $stmt->execute($params);
-            $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
-            return $data;
+            return match ($queryType) {
+                'Select' => $stmt->fetchAll(PDO::FETCH_ASSOC),
+                'Insert' => self::connect()->lastInsertId(), 
+                'Update', 'Delete' => $stmt->rowCount(),
+                default => null,                                
+            };
           }
      catch (Exception $e) {
             echo "Connection xx failed: " . $e->getMessage();

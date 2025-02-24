@@ -9,15 +9,12 @@ class Product extends Model
     public string $Title;
     public string $Description;
     public string $ISBN;
-    public string $ListPrice;
-    public string $Price;
-    public string $Price50;
-    public string $Price100;
+    public float $ListPrice;
+    public float $Price;
+    public float $Price50;
+    public float $Price100;
     public int $CategoryId;
-    public string $ImageUrl;
-
-
-     private int $speed = 0;
+    public ? string $ImageUrl;
 
   public function __construct($name = "Products")
   {

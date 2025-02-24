@@ -11,12 +11,15 @@ Routes::get('', function() {
   Index::CreateView('Index');
 });
 
+Routes::get('products', function() {
+  ProductController::CreateView('product');
+});
+
 Routes::group(['prefix' => 'backpages'], function() {
 
     Routes::get('history', function($go) {
       BHistory::CreateView($go);
     });
-
 
 });
 

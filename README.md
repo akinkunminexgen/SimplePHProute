@@ -9,10 +9,8 @@ To use middleware in the Route::group, it must be the same name as the filename 
 # No dependencies
 This simply uses the core php (without any library) by using the Routes class defined in this project and other relevant classes etc. with the aid of autoloading to properly configure all classes.
 
-# Contributing
-Feel free to contribute to this project by adding new features, fixing bugs, or improving documentation.
 
-# 🚦 **PHP Route Library**
+# 🚦 **SimplePHProute Library**
 
 A **simple and flexible routing library** for **PHP** applications, following the **MVC architecture**. This library provides **support for grouping routes**, **middleware integration**, and **namespace management**.
 

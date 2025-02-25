@@ -40,22 +40,32 @@ class Routes
               return; //this is to ensure that Middleware is only excuted for the right route
             }
             
-            if(isset($variables['middleware'])){        
-              
-              $middlewareFile = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'middleware'.DIRECTORY_SEPARATOR.$variables['middleware'].'.php';
+            if(isset($variables['middleware'])){ 
+              $middlewareList = $variables['middleware'];
+              $middlewareList = explode(';', $middlewareList);
 
-              if (file_exists($middlewareFile)) {
-                      self::$request = [
-                        'method' => $_SERVER['REQUEST_METHOD'],
-                        'uri' => $_SERVER['REQUEST_URI'],
-                        //'headers' => getallheaders(),
-                        'body' => $_POST,
-                        'query' => $_GET,
-                    ];
-                    require_once $middlewareFile;
-                  } else {
-                      throw new RuntimeException("Middleware file not found: $middlewareFile");
+              $number = count($middlewareList);
+              $request = new Request($_SERVER['REQUEST_METHOD']); 
+              foreach($middlewareList as $middleware)
+              {
+                $middlewareFile = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'middleware'.DIRECTORY_SEPARATOR.$middleware.'.php';
+
+                if (file_exists($middlewareFile)) 
+                {
+                  
+                  $request->next = $_SERVER['REQUEST_URI'];
+                  $request->count++;
+                  if($request->count == $number){
+                    $request->confirmed = true;
                   }
+                  require_once $middlewareFile;
+                } 
+                else {
+                      throw new RuntimeException("Middleware file not found: $middlewareFile");
+                    }                
+              }
+
+              
             }
         }
 
@@ -140,7 +150,7 @@ class Routes
           //to redirect to a 404 page in the view
         if (!$newRoute) {
           $controller = new Controller;
-          echo '<prev>'.var_dump("this is self routing", self::$validRoutes).'</prev>';
+          //echo '<prev>'.var_dump("this is self routing", self::$validRoutes).'</prev>';
           $controller->view('404');
         }
       }

@@ -19,8 +19,8 @@ Routes::group(['prefix' => 'products'], function() {
   Routes::groupEnd();
 });
 
-//Routes::enableMiddleware();
-Routes::group(['prefix' => 'backpages', 'middleware' => 'auth'], function() {
+Routes::enableMiddleware();
+Routes::group(['prefix' => 'backpages', 'middleware' => 'auth;role' /*adding more than one role*/], function() {
     Routes::get('history', function($go) {
       BHistory::CreateView($go);
     });
@@ -47,7 +47,7 @@ Routes::group(['prefix' => 'categories'], function() {
 });
 
 
-Routes::enableMiddleware();
+Routes::enableMiddleware(); // this must be declared before a group that has middleware
 Routes::group(['prefix' => 'frontpages', 'middleware' => 'role'], function() {
 
   Routes::get('history', function($go) {

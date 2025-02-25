@@ -17,6 +17,10 @@ function myAutoload($class_name)
           {
               require_once  __DIR__.'/Models/'.$class_name.'.php';
           }
+    elseif (file_exists( __DIR__.'/Config/'.$class_name.'.php'))
+    {
+        require_once  __DIR__.'/Config/'.$class_name.'.php';
+    }
           /*elseif (file_exists( __DIR__.'/'.$class_name.'.php'))
               {
                   require_once  __DIR__.'/'.$class_name.'.php';

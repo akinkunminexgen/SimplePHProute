@@ -3,15 +3,20 @@
 class RoleMiddleware {
     
     public static function handle($request) { 
+        $controller = new Controller;
         // Check if user is authenticated
-        if (self::isRole()) {
-            $controller = new Controller;
-            $controller->view($request["uri"]);
-            exit();
+        if (self::isRole()) { 
+            if($request->confirmed){
+                $controller->view($request->next);
+                exit();
+            }                   
         } else {
-            echo "This is the Role middleware";
+            if($request->confirmed){
+                echo "This is the Role middleware";
             //header("Location: /login.php");            
             exit();
+            }
+                
         }
     }
 
@@ -22,5 +27,5 @@ class RoleMiddleware {
     }
 }
 
-RoleMiddleware::handle(self::$request);
+RoleMiddleware::handle($request);
 ?>

@@ -22,7 +22,7 @@ A **simple and flexible routing library** for **PHP** applications, following th
 SimplePHPRoute/
 ├── Classes/
 │   ├── Controller.php     # Base Controllers class
-│   ├── Model.php          # Base Models class
+│   ├── Model.php          # Base Models class (It includes some basic query builder)
 │   ├── Views/             # Views (e.g., index.php, 404.php)
 │   └── Routes/            # Application routes (e.g., routes.php)
 ├── config/
@@ -44,6 +44,21 @@ SimplePHPRoute/
 │   ├── index.php          # Where views can begin with
 │   ├── 404.php            # For handling eror not found
 │─────── Routes.php        # where all routes are called (the index.php file is where execution starts from then to this Routes)
+│─────── Program.php       # This has to be required so has to make all routes work accordingly
+```
+
+---
+
+## 🚀 **Before Getting Started:**
+
+### 1. **Note:**
+
+```
+There are few files included which can be deleted. 
+This ensures that the whole concept can be understood in a short period of time.
+You also need a database connection inorder to use the querybuilder from the Model class.
+.env is required, follow the example on .env.example file.
+
 ```
 
 ---
@@ -61,9 +76,10 @@ cd php-route-library
 
 ### 2. **Setup:**
 
-- **Ensure the **``** file** is set up for **URL rewriting**:
+- **Ensure the **`.htaccess`** file** is set up for **URL rewriting**:
 
-```follow the one in .htaccess
+```
+follow the one in .htaccess
 ```
 
 - **Set up the front controller:**
@@ -71,15 +87,13 @@ cd php-route-library
 ```php
 // public/index.php
 
-require_once __DIR__ . '/index.php'; // Autoload dependencies
+require_once __DIR__ . '/program.php'; // This ensure that all class are autoloaded
 
 use Route;
 
-// Load application routes
-require_once __DIR__ . '/routes.php';
-
 // Start the routing process
-Route::populate();
+Route::get(/*whatever request you want*/);
+//check below to see an example of how it works
 ```
 
 ---
@@ -87,7 +101,6 @@ Route::populate();
 ## 🛠️ **Example of Route Definitions:**
 
 ```php
-use Frontpages\History as FHistory;
 use Backpages\History as BHistory;
 use Frontpages\{AboutUs, Authors, ContactUs};
 
@@ -144,17 +157,10 @@ AuthMiddleware::handle($request);
 
 ## 📌 **Usage Tips:**
 
-- **Always call **`` before declaring **middleware-based groups**.
-- **To add multiple middleware**, use **semicolon-separated strings**, e.g., ``.
+- **Always call **`Routes::enableMiddleware()` before declaring **middleware-based groups**.
+- **To add multiple middleware**, use **semicolon-separated strings**, e.g., `auth;role`.
 - **Group routes** logically using `` to maintain **clean code**.
 
----
-
-## 📄 **License:**
-
-This project is licensed under the **MIT License** - see the **LICENSE.md** file for details.
-
----
 
 ## 🤝 **Contributing:**
 

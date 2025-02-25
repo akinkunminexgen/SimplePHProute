@@ -21,10 +21,8 @@ class Controller
         foreach (self::$dataToSend as $key => $value) {
           $$key= json_decode(json_encode($value));
           }
-
         }
 
-        //check to know the array got values
       if(count($variables))
         {
           // Extract variables into the local scope
@@ -32,8 +30,21 @@ class Controller
             $$key= json_decode(json_encode($value));
             }
         }
-        // Load the specified page
-        require_once $pagePath . $page . $pageExtension;
+
+        $pageFile = $pagePath . $page . $pageExtension;
+        if (file_exists($pageFile)) {
+          try {
+              require_once $pageFile;
+          } catch (Exception $e) {
+              echo "Error while including the file: " . $e->getMessage();
+          }
+      } else {
+        echo"this is controller ";
+        var_dump($pageFile);
+          require_once $pagePath . '404' . $pageExtension;
+      }
+        
+        
     }
 
 

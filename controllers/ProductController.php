@@ -16,14 +16,14 @@ class ProductController extends Controller
     $product->Title = "Money is good";
     $product->Description = "Liverpool has won it";
     $product->ISBN = "545FGD5";
-    $product->ListPrice = 35.0;
-    $product->Price = 30.0;
-    $product->Price50 = 15.0;
-    $product->Price100 = 10.0;
+    $product->ListPrice = 100.0;
+    $product->Price = 60.0;
+    $product->Price50 = 45.0;
+    $product->Price100 = 30.0;
     $product->CategoryId = 2;
     //$result = $product->insert($product);
     $result = $product->all();
-    self::view($viewName, ["resulter" => $result]);
+    self::view($viewName, ["resulter" => $product]);
   }
 }
 

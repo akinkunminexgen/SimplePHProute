@@ -8,22 +8,47 @@ use Frontpages\{AboutUs, Authors, ContactUs};
 
 //creating different routes to every webpage
 Routes::get('', function() {
-  Index::CreateView('Index');
+  IndexController::CreateView('Index');
 });
 
-Routes::get('products', function() {
-  ProductController::CreateView('product');
+Routes::group(['prefix' => 'products'], function() {
+
+  Routes::get('/', function($theRoute) {
+    ProductController::CreateView($theRoute);
+  });
+  Routes::groupEnd();
 });
 
-Routes::group(['prefix' => 'backpages'], function() {
-
+//Routes::enableMiddleware();
+Routes::group(['prefix' => 'backpages', 'middleware' => 'auth'], function() {
     Routes::get('history', function($go) {
       BHistory::CreateView($go);
     });
 
+    Routes::group(['prefix' => 'colorpatterns'], function() {
+
+      Routes::get('red', function($go) {
+        IndexController::CreateView($go);
+      });
+    
+      Routes::get('blue', function($go) {
+        IndexController::CreateView($go);
+      });
+    });
+
+    Routes::groupEnd();
+});
+Routes::group(['prefix' => 'categories'], function() {
+
+  Routes::get('/', function($theRoute) {
+    CategoryController::CreateView($theRoute);
+  });
+  Routes::groupEnd();
 });
 
-Routes::group(['prefix' => 'frontpages'], function() {
+
+Routes::enableMiddleware();
+Routes::group(['prefix' => 'frontpages', 'middleware' => 'role'], function() {
 
   Routes::get('history', function($go) {
     FHistory::CreateView($go);
@@ -32,22 +57,9 @@ Routes::group(['prefix' => 'frontpages'], function() {
   Routes::get('about-us', function() {
     AboutUs::CreateView('AboutUs');
   });
-
+  Routes::groupEnd();
 });
 
-
-Routes::get('contact-us', function() {
-  ContactUs::CreateView('ContactUs');
-});
-
-Routes::get('authors', function() {
-  Authors::CreateView('Authors');
-});
-
-Routes::get('frontpages/about-us', function() {
-  AboutUs::CreateView('AboutUs');
-  //AboutUs::test();
-});
 
 Routes::get('404', function() {
   Controller::view('./views/404.php');

@@ -2,17 +2,18 @@
 // authMiddleware.php
 
 class AuthMiddleware {
-    public static function handle() {
+    
+    public static function handle($request) { 
         // Check if user is authenticated
         if (self::isAuthenticated()) {
-            // User is authenticated, proceed to the next middleware or controller
-            //return $next($request);
+            $controller = new Controller;
+            $controller->view($request["uri"]);
+            exit();
         } else {
             // User is not authenticated, redirect to login page or return unauthorized response
-            $controller = new Controller;
-            //$controller->view('index');
-            //header("Location: /login.php");
-            exit;
+            echo "This is Auth the middleware";
+            //header("Location: /login.php");            
+            exit();
         }
     }
 
@@ -23,5 +24,5 @@ class AuthMiddleware {
     }
 }
 
-AuthMiddleware::handle()
+AuthMiddleware::handle(self::$request);
 ?>

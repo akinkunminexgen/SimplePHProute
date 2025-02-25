@@ -16,9 +16,9 @@ class Product extends Model
     public int $CategoryId;
     public ? string $ImageUrl;
 
-  public function __construct($name = "Products")
+  public function __construct($tableName = "Products")
   {
-    parent::__construct($name);
+    parent::__construct($tableName);
   }
 
 

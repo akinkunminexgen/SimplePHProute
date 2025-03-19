@@ -66,10 +66,11 @@ You also need a database connection inorder to use the querybuilder from the Mod
 ## 🚀 **Getting Started:**
 
 ### 1. **Installation:**
-
+**Ensure php is installed on your device and include it in the PATH** (Environment Variable);
 ```bash
 git clone https://github.com/akinkunminexgen/SimplePHProute.git
 cd php-route-library
+php -S localhost:8000
 ```
 
 ---
@@ -132,6 +133,8 @@ Routes::group(['prefix' => 'backpages', 'middleware' => 'auth;role'], function()
 
     Routes::groupEnd();
 });
+
+Routes::populate();
 ```
 
 ---

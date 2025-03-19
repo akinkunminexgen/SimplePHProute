@@ -5,14 +5,15 @@
  */
 class CategoryController extends Controller
 {
-  public static function doSomething($viewName){
-
+  public static function doSomething($viewName){    
+    
     $category = new Category();
-    $category->Name = "Gadjet";
-    $category->DisplayOrder = "55";
-    //$result = $category->insert($category);
-    $result = $category->all();
-    self::view($viewName, ["resulter" => $result]);
+    $product = new Product();
+    $result = $category->find(2);
+    $product->Title = $result['Name'];
+    var_dump($result);
+    var_dump("<br>",$product);
+    self::view($viewName, ["resulter" => $result->toList()]);
   }
 }
 

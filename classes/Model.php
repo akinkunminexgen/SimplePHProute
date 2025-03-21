@@ -5,8 +5,8 @@
 */
 class Model extends Database
 {
-    public $tableName;
-    public $chainingResult;
+    protected $tableName;
+    protected  bool $chainingResult = false;
 
     public function __construct($name, array $data = [])
     {
@@ -14,14 +14,7 @@ class Model extends Database
             throw new Exception("Table name cannot be empty.");
         }
         
-        $this->tableName = 'dbo.'.$name;
-        if(count($data))
-        {
-            foreach ($data as $key => $value) {
-                $this->{$key} = $value;
-            }
-        }
-        
+        $this->tableName = $name;        
     }
 
     public function all()
@@ -31,19 +24,34 @@ class Model extends Database
 
     public function toList() : array
     {
-        return !empty($this->chainingResult) ? [$this->chainingResult] : [];
+        return $this->chainingResult ? [$this] : [];
+    }
+
+    public function mapper($data): void
+    {
+        $this->chainingResult = true;
+        $newKeys = array_keys($data);
+        $objectKeys = array_keys(get_class_vars(get_class($this)));
+
+        $objectKeysMap = array_flip($objectKeys);
+    
+        foreach ($newKeys as $value) {
+            if (isset($objectKeysMap[$value])) {
+                $this->{$value} = $data[$value];
+            }
+        }
     }
 
     public function find(int $id)
     {
         $query = "SELECT TOP 1 * FROM {$this->tableName} WHERE id = :id";
         $result = self::query("Select", $query, ['id' => $id]);
-        $this->chainingResult = $result ? $result[0] : null;
+        $result = $result ? $result[0] : null;
+        
 
         if ($result) {
-            return debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 2)[1]['function'] === '__call' 
-            ? $this
-            : $this->chainingResult;
+            $this->mapper($result);
+            return  $this;
         }
         return null;
     }
@@ -54,8 +62,14 @@ class Model extends Database
             throw new Exception("Where condition must have exactly two elements: [column, value].");
         }
         [$column, $value] = $condition;
-        $query = "SELECT * FROM {$this->tableName} WHERE $column = :value LIMIT 1";
-        return self::query("Select", $query, ['value' => $value]);
+        $query = "SELECT TOP 1 * FROM {$this->tableName} WHERE $column = :value";
+        $result = self::query("Select", $query, ['value' => $value]);
+        $result = $result ? $result[0] : null;
+        if ($result) {
+            $this->mapper($result);
+            return  $this;
+        }
+        return null;
     }
 
     public function where(array $condition)

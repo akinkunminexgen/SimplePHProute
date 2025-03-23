@@ -5,8 +5,10 @@
 */
 class Model extends Database
 {
-    protected $tableName;
+    protected $tableName, $alias;
     protected  bool $chainingResult = false;
+    protected string $queryStarter = "";
+    public ?string $querySelect = null, $queryWhere = null, $queryJoin = null;
 
     public function __construct($name, array $data = [])
     {
@@ -14,19 +16,25 @@ class Model extends Database
             throw new Exception("Table name cannot be empty.");
         }
         
-        $this->tableName = $name;        
+        $this->tableName = $name;
+        $this->alias = $name; 
     }
 
     public function all()
     {
-        return self::query("Select", "SELECT * FROM {$this->tableName}");
+        return $this->toList();
     }
 
     public function toList() : array
     {
-        return $this->chainingResult ? [$this] : [];
+        $this->buildQuery();
+        var_dump($this->queryStarter);
+        $data = $this->chainingResult ? [$this] : (self::query("Select", $this->queryStarter) ?? []);
+        $this->chainingResult = false;
+        return $data;
     }
 
+    //to map result to object
     public function mapper($data): void
     {
         $this->chainingResult = true;
@@ -42,12 +50,23 @@ class Model extends Database
         }
     }
 
+    // Method to rebuild the query
+    private function buildQuery(): void
+    {
+        $this->queryStarter = "SELECT " . ($this->querySelect ?? '*') . 
+                              " FROM {$this->tableName} as {$this->alias} " . 
+                              ($this->queryJoin ?? '') . 
+                              "" . 
+                              ($this->queryWhere ?? '');
+    }
+
     public function find(int $id)
     {
-        $query = "SELECT TOP 1 * FROM {$this->tableName} WHERE id = :id";
-        $result = self::query("Select", $query, ['id' => $id]);
-        $result = $result ? $result[0] : null;
-        
+        $this->querySelect = "TOP 1 *";
+        $this->queryWhere = "WHERE id = {$id}";
+        $this->buildQuery();
+        $result = self::query("Select", $this->queryStarter);
+        $result = $result ? $result[0] : null;        
 
         if ($result) {
             $this->mapper($result);
@@ -78,24 +97,39 @@ class Model extends Database
             throw new Exception("Where condition must have exactly two elements: [column, value].");
         }
         [$column, $value] = $condition;
-        $query = "SELECT * FROM {$this->tableName} WHERE $column = :value";
-        return self::query("Select", $query, ['value' => $value]);
+        //$query = "SELECT * FROM {$this->tableName} WHERE $column = :value";
+        if (is_string($value)) {
+            $value = "'{$value}'"; // Quote the string value
+        }
+        $this->queryWhere = "WHERE {$this->tableName}.{$column} = {$value}";
+        return $this; //self::query("Select", $query, ['value' => $value]);
     }
 
-    public function whereto(Closure $condition)
+    public function select(string ...$select)
     {
-        if ($condition instanceof Closure) {
-            $query = new static(); // or $this if chaining
-            $condition($query);
-            var_dump($query);
-            var_dump($condition);
+        $selectWithAlias = array_map(function ($item) {
+            return "{$this->alias}.{$item}";
+        }, $select);
+        
+        $this->querySelect = implode(', ', $selectWithAlias);
+        return $this;
+    }
+
+    public function join(object $join)
+    {
+        if (!isset($join->tableName) || !isset($join->alias)) {
+            throw new Exception("The join object must have both 'tableName' and 'alias' properties.");
         }
-        // Handle array conditions as usual
+
+        $this->queryJoin = "INNER JOIN {$join->tableName} as {$join->alias} ON {$this->alias}.{$this->foreignKey} = {$join->alias}.Id ";
+        //var_dump("this category", $join);
+        return $this;
     }
 
     // Insert a new record
     public function insert(Object $dataObj)
     {
+        //$data = get_class_vars(get_class($dataObj)); //just use this if error
         $data = get_object_vars($dataObj);
         unset($data['tableName']); // to always ensure removal of table name from the properties
         $columns = implode(',', array_keys($data));

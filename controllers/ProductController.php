@@ -8,7 +8,10 @@ class ProductController extends Controller
   public static function doSomething($viewName){
 
     $product = new Product();
-    $result = $product->firstOrDefault(['Title', 'Dark Skies']);
+    $category = new Category();
+    //$result = $product->firstOrDefault(['Title', 'Dark Skies']);
+    $result = $product->select('Title', 'Author', 'Price')->where(['Title', 'Dark Skies'])->join($category);
+   // var_dump($result->toList());
     self::view($viewName, ["resulter" => $result->toList()]);
   }
 }

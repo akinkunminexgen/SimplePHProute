@@ -8,62 +8,55 @@ use Frontpages\{AboutUs, Authors, ContactUs};
 
 //creating different routes to every webpage
 Routes::get('', function() {
-  IndexController::CreateView('Index');
+    IndexController::CreateView('Index');
 });
 
 Routes::group(['prefix' => 'products'], function() {
 
-  Routes::get('/', function($theRoute) {
+    Routes::get('/', function($theRoute) {
     ProductController::CreateView($theRoute);
-  });
-  Routes::groupEnd();
+    });
 });
 
 Routes::enableMiddleware();
-Routes::group(['prefix' => 'backpages', 'middleware' => 'auth;role' /*adding more than one role*/], function() {
-    Routes::get('history', function($go) {
-      BHistory::CreateView($go);
-    });
+Routes::group(['prefix' => 'backpages', 'middleware' => 'auth;role' /*adding more than one role*/], function() {    
 
     Routes::group(['prefix' => 'colorpatterns'], function() {
 
-      Routes::get('red', function($go) {
+        Routes::get('red', function($go) {
         IndexController::CreateView($go);
-      });
+        });
     
-      Routes::get('blue', function($go) {
+        Routes::get('blue', function($go) {
         IndexController::CreateView($go);
-      });
+        });
     });
 
-    Routes::groupEnd();
+    Routes::get('history', function($go) {
+        BHistory::CreateView($go);
+    });
+
 });
+
 Routes::group(['prefix' => 'categories'], function() {
 
-  Routes::get('/', function($theRoute) {
+    Routes::get('/', function($theRoute) {
     CategoryController::CreateView($theRoute);
-  });
-  Routes::groupEnd();
+    });
 });
 
 
 Routes::enableMiddleware(); // this must be declared before a group that has middleware
 Routes::group(['prefix' => 'frontpages', 'middleware' => 'role'], function() {
 
-  Routes::get('history', function($go) {
+    Routes::get('history', function($go) {
     FHistory::CreateView($go);
-  });
-
-  Routes::get('about-us', function() {
-    AboutUs::CreateView('AboutUs');
-  });
-  Routes::groupEnd();
+    });
 });
 
 
 Routes::get('404', function() {
-  Controller::view('./views/404.php');
-  //AboutUs::test();
+    Controller::view('./views/404.php');
 });
 
 //to populate every route listed above

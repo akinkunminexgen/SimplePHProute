@@ -39,8 +39,7 @@ class Controller
               echo "Error while including the file: " . $e->getMessage();
           }
       } else {
-        echo"this is controller ";
-        var_dump($pageFile);
+        //var_dump($pageFile);
           require_once $pagePath . '404' . $pageExtension;
       }
         

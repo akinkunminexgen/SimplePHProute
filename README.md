@@ -113,7 +113,6 @@ Routes::group(['prefix' => 'products'], function() {
     Routes::get('/', function($route) {
         ProductController::CreateView($route);
     });
-    Routes::groupEnd();
 });
 
 Routes::enableMiddleware();
@@ -131,7 +130,6 @@ Routes::group(['prefix' => 'backpages', 'middleware' => 'auth;role'], function()
         });
     });
 
-    Routes::groupEnd();
 });
 
 Routes::populate();
@@ -162,7 +160,6 @@ AuthMiddleware::handle($request);
 
 - **Always call **`Routes::enableMiddleware()` before declaring **middleware-based groups**.
 - **To add multiple middleware**, use **semicolon-separated strings**, e.g., `auth;role`.
-- **Group routes** must be closed by using `Routes::groupEnd()` **Just only use it once in a parent, child will inherit it**.
 - **Always call** `Routes::populate()` **at the end of the Routes.php file**.
 
 

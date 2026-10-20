@@ -1,161 +1,207 @@
+
 <?php
-/*
-*
-*
-*/
+
 class Model extends Database
 {
-    protected $tableName, $alias;
-    protected  bool $chainingResult = false;
-    protected string $queryStarter = "";
-    public ?string $querySelect = null, $queryWhere = null, $queryJoin = null;
+    protected static $tableName, $alias, $primaryKey;
+    protected static bool $chainingResult = false;
+    protected static string $queryStarter = "";
+    public static ?string $querySelect = null;
+    public static ?string $queryWhere = null;
+    public static ?string $queryJoin = null;
 
-    public function __construct($name, array $data = [])
+    public function __construct(?string $tableName = null)
     {
-        if (empty($name)) {
-            throw new Exception("Table name cannot be empty.");
+        $className = (new ReflectionClass(static::class))->getShortName();
+
+        static::$tableName = $tableName ?? self::getTableNameFor(static::class);
+        static::$alias = $className;
+        static::$primaryKey = 'Id';
+    }
+
+    public function __set(string $property, mixed $value): void //to ensure only property of the model can be called
+    {
+        throw new \InvalidArgumentException(
+            "Unknown property: " . static::class . "::$property"
+        );
+    }
+
+    protected static function getTableNameFor(string $class): string
+    {
+        $name = (new ReflectionClass($class))->getShortName();
+
+        if (str_ends_with($name, 'y')) {
+            return substr($name, 0, -1) . 'ies';
         }
-        
-        $this->tableName = $name;
-        $this->alias = $name; 
+
+        return $name . 's';
     }
 
-    public function all()
+    protected static function configureModel(): void
     {
-        return $this->toList();
+        $className = (new ReflectionClass(static::class))->getShortName();
+
+        static::$tableName = self::getTableNameFor(static::class);
+        static::$alias = $className;
+        static::$primaryKey = 'Id';
     }
 
-    public function toList() : array
+    
+
+    public static function all()
     {
-        $this->buildQuery();
-        var_dump($this->queryStarter);
-        $data = $this->chainingResult ? [$this] : (self::query("Select", $this->queryStarter) ?? []);
-        $this->chainingResult = false;
+        return self::toList();
+    }
+
+    public static function toList(): array
+    {
+        static::configureModel();    
+        self::buildQuery();
+
+        $data = self::$chainingResult
+            ? [static::class]
+            : (self::query("Select", self::$queryStarter) ?? []);
+
+        self::$chainingResult = false;
         return $data;
     }
 
-    //to map result to object
-    public function mapper($data): void
+    public static function mapper($data): void
     {
-        $this->chainingResult = true;
-        $newKeys = array_keys($data);
-        $objectKeys = array_keys(get_class_vars(get_class($this)));
-
-        $objectKeysMap = array_flip($objectKeys);
-    
-        foreach ($newKeys as $value) {
-            if (isset($objectKeysMap[$value])) {
-                $this->{$value} = $data[$value];
-            }
-        }
+        self::$chainingResult = true;
     }
 
-    // Method to rebuild the query
-    private function buildQuery(): void
+    private static function buildQuery(): void
     {
-        $this->queryStarter = "SELECT " . ($this->querySelect ?? '*') . 
-                              " FROM {$this->tableName} as {$this->alias} " . 
-                              ($this->queryJoin ?? '') . 
-                              "" . 
-                              ($this->queryWhere ?? '');
+        self::$queryStarter =
+            "SELECT " . (self::$querySelect ?? '*') .
+            " FROM " . static::$tableName . " as " . static::$alias . " " .
+            (self::$queryJoin ?? '') .
+            (self::$queryWhere ?? '');
+            echo self::$queryStarter;
     }
 
-    public function find(int $id)
+    public static function find(int $id)
     {
-        $this->querySelect = "TOP 1 *";
-        $this->queryWhere = "WHERE id = {$id}";
-        $this->buildQuery();
-        $result = self::query("Select", $this->queryStarter);
-        $result = $result ? $result[0] : null;        
+        static::configureModel();
+        self::$querySelect = "TOP 1 *";
+        self::$queryWhere = "WHERE id = {$id}";
 
-        if ($result) {
-            $this->mapper($result);
-            return  $this;
-        }
-        return null;
+        self::buildQuery();
+
+        return self::query("Select", self::$queryStarter);
     }
 
-    public function firstOrDefault(array $condition)
+    public static function firstOrDefault(array $condition)
     {
+        static::configureModel();
         if (count($condition) !== 2) {
-            throw new Exception("Where condition must have exactly two elements: [column, value].");
+            throw new Exception(
+                "Where condition must have exactly two elements: [column, value]."
+            );
         }
+
         [$column, $value] = $condition;
-        $query = "SELECT TOP 1 * FROM {$this->tableName} WHERE $column = :value";
-        $result = self::query("Select", $query, ['value' => $value]);
-        $result = $result ? $result[0] : null;
-        if ($result) {
-            $this->mapper($result);
-            return  $this;
-        }
-        return null;
+
+        $query = "SELECT TOP 1 * FROM " . static::$tableName .
+                 " WHERE $column = :value";
+
+        return self::query("Select", $query, ['value' => $value]);
     }
 
-    public function where(array $condition)
+    public static function where(array $condition)
     {
+        static::configureModel();
         if (count($condition) !== 2) {
-            throw new Exception("Where condition must have exactly two elements: [column, value].");
+            throw new Exception(
+                "Where condition must have exactly two elements: [column, value]."
+            );
         }
+
         [$column, $value] = $condition;
-        //$query = "SELECT * FROM {$this->tableName} WHERE $column = :value";
+
         if (is_string($value)) {
-            $value = "'{$value}'"; // Quote the string value
+            $value = "'{$value}'";
         }
-        $this->queryWhere = "WHERE {$this->tableName}.{$column} = {$value}";
-        return $this; //self::query("Select", $query, ['value' => $value]);
-    }
 
-    public function select(string ...$select)
-    {
-        $selectWithAlias = array_map(function ($item) {
-            return "{$this->alias}.{$item}";
-        }, $select);
+        self::$queryWhere =
+            " WHERE " . static::$alias . ".{$column} = {$value}";
         
-        $this->querySelect = implode(', ', $selectWithAlias);
-        return $this;
+        return new static();
     }
 
-    public function join(object $join)
+    public static function select(string ...$select)
     {
-        if (!isset($join->tableName) || !isset($join->alias)) {
-            throw new Exception("The join object must have both 'tableName' and 'alias' properties.");
-        }
+        static::configureModel();
+        $selectWithAlias = array_map(function ($item) {
+            return str_contains($item, '.')
+                ? $item
+                : static::$alias . "." . $item;
+        }, $select);
 
-        $this->queryJoin = "INNER JOIN {$join->tableName} as {$join->alias} ON {$this->alias}.{$this->foreignKey} = {$join->alias}.Id ";
-        //var_dump("this category", $join);
-        return $this;
+        self::$querySelect = implode(', ', $selectWithAlias);
+
+        return new static();
     }
 
-    // Insert a new record
-    public function insert(Object $dataObj)
+    public static function join(string $join)
     {
-        //$data = get_class_vars(get_class($dataObj)); //just use this if error
+        $currentClass = static::class;
+        $currentAlias = (new ReflectionClass($currentClass))->getShortName();
+
+        $joinClass = $join;
+
+        $joinAlias = (new ReflectionClass($joinClass))->getShortName();
+        $tableName = self::getTableNameFor($joinClass);
+        $primaryKey = 'Id';
+
+        self::$queryJoin = "INNER JOIN {$tableName} AS {$joinAlias} ON " .
+            "{$currentAlias}.{$joinAlias}Id = {$joinAlias}.{$primaryKey} ";
+
+        return new static();
+    }
+
+    public static function insert(object $dataObj)
+    {
+        static::configureModel();
         $data = get_object_vars($dataObj);
-        unset($data['tableName']); // to always ensure removal of table name from the properties
+
+        unset($data['tableName']);
+
         $columns = implode(',', array_keys($data));
         $placeholders = ':' . implode(', :', array_keys($data));
-        $query = "INSERT INTO {$this->tableName} ($columns) VALUES ($placeholders)";        
+
+        $query = "INSERT INTO " . static::$tableName .
+                 " ($columns) VALUES ($placeholders)";
+
         return self::query("Insert", $query, $data);
     }
 
-    // Update a record by ID
-    public function update(int $id, array $data)
+    public static function update(int $id, array $data)
     {
+        static::configureModel();
         $fields = '';
+
         foreach ($data as $key => $value) {
             $fields .= "$key = :$key, ";
         }
+
         $fields = rtrim($fields, ', ');
         $data['id'] = $id;
-        $query = "UPDATE {$this->tableName} SET $fields WHERE id = :id";
+
+        $query = "UPDATE " . static::$tableName .
+                 " SET $fields WHERE id = :id";
+
         return self::query("Update", $query, $data);
     }
 
-    // Delete a record by ID
-    public function delete(int $id)
+    public static function delete(int $id)
     {
-        $query = "DELETE FROM {$this->tableName} WHERE id = :id";
-        return self::query("Delete", $this->$queryType, $query, ['id' => $id]);
+        static::configureModel();
+        $query = "DELETE FROM " . static::$tableName .
+                 " WHERE id = :id";
+
+        return self::query("Delete", $query, ['id' => $id]);
     }
 }
 ?>

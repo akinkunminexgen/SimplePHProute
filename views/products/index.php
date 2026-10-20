@@ -16,6 +16,8 @@
                   <th>Title</th>
                   <th>Author</th>
                   <th>Price</th>
+                  <th>CategoryName</th>
+                  <th>DisplayOrder</th>
                   <!-- Add more columns as needed -->
               </tr>
           </thead>
@@ -27,6 +29,8 @@
                               <td>{$value->Title}</td>
                               <td>{$value->Author}</td>
                               <td>{$value->Price}</td>
+                              <td>{$value->Name}</td>
+                              <td>{$value->DisplayOrder}</td>
                             </tr>";
                   }
               } else {

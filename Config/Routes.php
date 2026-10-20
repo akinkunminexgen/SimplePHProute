@@ -7,9 +7,16 @@ class Routes
     public static $validRoutes, $url, $request = array();
     public static $count = 0;
     public static $routing, $theGroupRoute, $existingGroupRoute = "";
-    public static $check, $checkMidleware = false;
+    public static $check, $checkMidleware, $initialize = false;
+    public static $path = "";
     
     
+    public static function initializePath()
+    {
+        self::$path = trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), '/');
+        self::$initialize = true;
+        return self::$initialize;
+    }
     //this should be used when you will like to activate a middleware in a group
     public static function enableMiddleware(){
       self::$checkMidleware = true;
@@ -32,21 +39,32 @@ class Routes
   //to group routes in different folder and also to make use of middleware
   public static function group($variables, $function)
   {
+        if(!self::$initialize)
+        {
+            self::initializePath();
+        }            
+
         self::$routing = "";
         self::$existingGroupRoute .= self::$routing;
         if(isset($variables['prefix'])){
             self::$existingGroupRoute .= $variables['prefix']."/";
             self::$routing = self::$existingGroupRoute;
         }
+        
+        $userRealUrl = self::$path;
+        if( str_contains($userRealUrl, self::$existingGroupRoute))
+        {
+            self::$checkMidleware = isset($variables['middleware']) ? true : false;
+        }
 
-        if(self::$checkMidleware ){
+        if(self::$checkMidleware &&  str_contains($userRealUrl, self::$existingGroupRoute)){
             
             if(isset($variables['middleware'])){ 
                 $middlewareList = $variables['middleware'];
                 $middlewareList = explode(';', $middlewareList);
 
                 $number = count($middlewareList);
-                $request = new Request($_SERVER['REQUEST_METHOD']); 
+                $request = new Request(self::$path); 
                 foreach($middlewareList as $middleware)
                 {
                 $middlewareFile = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'src'.DIRECTORY_SEPARATOR.'middleware'.DIRECTORY_SEPARATOR.$middleware.'.php';
@@ -74,9 +92,13 @@ class Routes
   }
 
   private static function set($routes, $function)
-  {      
+  {   
+      if(!self::$initialize){
+          self::initializePath();
+      }
+
       //ensuring all group routes are verified to accomodate other routes
-      $groupUrl = explode("/",$_SERVER['REQUEST_URI']);
+      $groupUrl = explode("/",self::$path);
       array_pop($groupUrl);
       $groupUrl = ltrim(implode("/", $groupUrl), "/");
       
@@ -107,12 +129,11 @@ class Routes
       
       self::$count++;
       // to get the url parameter as to know the specific routes
-      self::$url = explode("/",$_SERVER['REQUEST_URI'],2);
+      self::$url = self::$path;
       if($verifyIndex)
-        self::$url[1] .= "/index";
+        self::$url.= "/index";
 
-      if (self::$url[1] == self::$routing) {
-
+      if (self::$url == self::$routing) {
           $function->__invoke(self::$routing); // to run all Routes
           exit();
         }else {

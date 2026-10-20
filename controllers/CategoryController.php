@@ -7,10 +7,12 @@ class CategoryController extends Controller
 {
   public static function doSomething($viewName){    
     
-    $category = new Category();
-    $result = $category->find(2)->toList();
+    //$category = new Category();
+    //$category->name = "Able";
+    //$category->displayOrder = 99;
+    //$Insert = Category::insert($category);
+    $result = Category::all();
     //var_dump($result);
-    //var_dump("<br>",$product);
     self::view($viewName, ["resulter" => $result]);
   }
 }

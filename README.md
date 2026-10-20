@@ -156,7 +156,7 @@ AuthMiddleware::handle($request);
 ## 📌 **Usage Tips:**
 
 - **Always call** `Routes::enableMiddleware()` before declaring **middleware-based groups**.
-- **When creating a new middleware class** ,a function` protected static function isAllowed ($request){}` has to be created **Your logic must should be inside it**.
+- **When creating a new middleware class** ,a function` protected static function isAllowed ($request){}` has to be created **Your logic must be in the function**.
 - **To add multiple middleware**, use **semicolon-separated strings**, e.g., `auth;role`.
 - **Always call** `Routes::populate()` **at the end of the Routes.php file**.
 

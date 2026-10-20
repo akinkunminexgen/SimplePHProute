@@ -23,8 +23,6 @@ SimplePHPRoute/
 ├── Classes/
 │   ├── Controller.php     # Base Controllers class
 │   ├── Model.php          # Base Models class (It includes some basic query builder)
-│   ├── Views/             # Views (e.g., index.php, 404.php)
-│   └── Routes/            # Application routes (e.g., routes.php)
 ├── config/
 │   ├── Request.php        # Request handling class
 │   ├── Database.php       # Database connection class
@@ -33,19 +31,18 @@ SimplePHPRoute/
 │   ├── Backpages/         # folder to show how to call the class since it is not autoloaded
 │   ├── Frontpages/        # folder to show how to call the class since it is not autoloaded
 │   ├── ProductController  # To show how controller works inheriting from the Controller class
-│   ├── View.php           # View rendering class
-│   └── Middleware.php     # Middleware base class
 |── Models/
 |    ├── Product.php        # inheriting from Model class
 ├── src/
-│   ├── Middleware/        # where all middleware are located
+│   ├── Middleware/        # Folder must contain middlewares, there is a base class called middleware where others inherit from
 ├── views/                  
 │   ├── products/          # Views (e.g., index.php and other relevant files related to product)
 │   ├── index.php          # Where views can begin with
 │   ├── 404.php            # For handling eror not found
 │─────── Routes.php        # where all routes are called (the index.php file is where execution starts from then to this Routes)
 │─────── Program.php       # This has to be required so has to make all routes work accordingly
-```
+│─────── .env.example      # Show how to setup your .env file
+│─────── .htaccess         # Engine rules ensuring everything starts from index.php which requires the program.php file
 
 ---
 
@@ -158,7 +155,8 @@ AuthMiddleware::handle($request);
 
 ## 📌 **Usage Tips:**
 
-- **Always call **`Routes::enableMiddleware()` before declaring **middleware-based groups**.
+- **Always call** `Routes::enableMiddleware()` before declaring **middleware-based groups**.
+- **When creating a new middleware class** ,a function` protected static function isAllowed ($request){}` has to be created **Your logic must should be inside it**.
 - **To add multiple middleware**, use **semicolon-separated strings**, e.g., `auth;role`.
 - **Always call** `Routes::populate()` **at the end of the Routes.php file**.
 

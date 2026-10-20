@@ -78,7 +78,7 @@ class Model extends Database
             " FROM " . static::$tableName . " as " . static::$alias . " " .
             (self::$queryJoin ?? '') .
             (self::$queryWhere ?? '');
-            echo self::$queryStarter;
+            //echo self::$queryStarter;
     }
 
     public static function find(int $id)
